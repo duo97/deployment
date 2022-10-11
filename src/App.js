@@ -20,6 +20,7 @@ import * as facemesh from "@tensorflow-models/face-landmarks-detection";
 import Webcam from "react-webcam";
 import { drawMesh } from "./utilities";
 import Game from "./game_of_life";
+import axios from 'axios'
 
 
 
@@ -28,6 +29,23 @@ function App() {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
 
+
+  const [ip, setIP] = useState('');
+
+  //creating function to load ip address from the API
+  const getData = async () => {
+    const res = await axios.get('https://geolocation-db.com/json/')
+    console.log(res.data);
+    setIP(res.data.IPv4)
+    console.log("got ip",res)
+  }
+  
+  useEffect( () => {
+    //passing getData method to the lifecycle method
+    getData()
+    
+
+  }, [])
 
   //  Load posenet
   const runFacemesh = async () => {
