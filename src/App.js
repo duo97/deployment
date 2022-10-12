@@ -20,12 +20,14 @@ import * as facemesh from "@tensorflow-models/face-landmarks-detection";
 import Webcam from "react-webcam";
 import { drawMesh } from "./utilities";
 import Game from "./game_of_life";
-import axios from 'axios'
+import axios from 'axios';
+
 
 
 
 function App() {
   const [facedata, setFacedata] = useState([]);
+  const [facecolor, setFacecolor] = useState([222, 49, 99]);
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -37,7 +39,13 @@ function App() {
     const res = await axios.get('https://geolocation-db.com/json/')
     console.log(res.data);
     setIP(res.data.IPv4)
-    console.log("got ip",res)
+    console.log("got ip",res.data.IPv4);
+    
+    const IPints=res.data.IPv4.split(".");
+    const r=parseInt(IPints[0]);
+    const g=parseInt(IPints[1]);
+    const b=parseInt(IPints[2]);
+    setFacecolor([r,g,b]);
   }
   
   useEffect( () => {
@@ -114,6 +122,7 @@ function App() {
             zindex: 9,
             width: 640,
             height: 480,
+            opacity: 1.0,
           }}
         />
 
@@ -121,7 +130,7 @@ function App() {
           ref={canvasRef}
           style={{
             position: "absolute",
-            marginLeft:"65%",
+            marginLeft:"5%",
             marginRight: "auto",
             left: 0,
             right: 0,
@@ -130,17 +139,30 @@ function App() {
             width: 640,
             height: 480,
             backgroundColor: "rgba(255, 255, 255, 1)",
+            opacity: 1.0,
           }}
         />
+        <div
+          style={{
+            position: "absolute",
+            height:"100%",
+            width:"100%",
+            zindex:100,
+            backgroundColor: "rgba(255, 255, 255, 1)",
+          }}
+
+        />
          <Game
+         
          facedata={facedata}
+         facecolor={facecolor}
          style={{
           position: "absolute",
-          marginLeft:"5%",
+          marginLeft:"auto",
           marginRight: "auto",
           left: 0,
           right: 0,
-          textAlign: "left",
+          textAlign: "center",
           zindex:200,
           backgroundColor: "rgba(255, 255, 255, 1)",
         }}

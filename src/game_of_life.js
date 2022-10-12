@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import produce from 'immer';
 
 
@@ -26,11 +26,46 @@ const generateEmptyGrid = () => {
   return rows;
 };
 
+
 const Game= (props) => {
-    // console.log("get face data from parent",props.facedata);
+  // console.log("get face color from parent",props.facecolor);
+  let livecolor="rgba("+props.facecolor[0]+","+props.facecolor[1]+","+props.facecolor[2]+")";
   const [grid, setGrid] = useState(() => {
     return generateEmptyGrid();
   });
+
+  useEffect( () => {
+    //passing getData method to the lifecycle method
+   runSimulation()
+   const sendState = async () => {
+    const myData = {
+      message: 'try something',
+    }
+
+    const result = await fetch('http://localhost:3000/try', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(myData)
+    })
+
+    console.log("posted json",result);
+    // setAuthors(prev => [...prev, resultInJson])
+  }
+   const handleTabClose = event => {
+    event.preventDefault();
+    sendState();
+
+    console.log('beforeunload event triggered');
+
+    return (event.returnValue = 'Are you sure you want to exit?');
+  };
+
+  window.addEventListener('beforeunload', handleTabClose);
+    
+
+  }, [])
  
   const facedataRef=useRef();
   facedataRef.current=props.facedata;
@@ -70,8 +105,8 @@ const Game= (props) => {
                 const y = keypoints[i][1];
                 const c=Math.floor(x/480*numCols);
                 const r=Math.floor(y/640*numRows);
-                console.log("column index is",c,"row index is",r);
-                console.log("current grid is",gridCopy);
+                // console.log("column index is",c,"row index is",r);
+                // console.log("current grid is",gridCopy);
                 if (gridCopy&&gridCopy[r]&&gridCopy[r][c]==0){
                 gridCopy[r][c] = 1;
                 }
@@ -86,16 +121,22 @@ const Game= (props) => {
 
   return (
     <>
-      <button
+      {/* <button
         onClick={() => {
         runSimulation();
         }}
-      ></button>
+        style={{
+          position: "absolute",
+          zindex:200,
+        }}
+      ></button> */}
 
       <div
         style={{
+          position: "absolute",
           display: "grid",
-          gridTemplateColumns: `repeat(${numCols}, 5px)`
+          gridTemplateColumns: `repeat(${numCols}, 5px)`,
+          zindex:200,
         }}
       >
         {grid.map((rows, i) =>
@@ -105,7 +146,7 @@ const Game= (props) => {
               style={{
                 width: 5,
                 height: 5,
-                backgroundColor: grid[i][k] ? "pink" :"white",
+                backgroundColor: grid[i][k] ? livecolor :"white",
                 border: "solid 1px black"
               }}
             />
